@@ -3,7 +3,8 @@
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\AttributeOptionInterface;
-use Pim\Component\Catalog\Normalizer\Structured\AttributeOptionNormalizer as BaseNormalizer;
+use Pim\Component\Catalog\Normalizer\Standard\AttributeOptionNormalizer as StandardNormalizer;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Normalize an attribute option
@@ -14,10 +15,53 @@ use Pim\Component\Catalog\Normalizer\Structured\AttributeOptionNormalizer as Bas
  *
  * @see       Pim\Bundle\TransformBundle\Normalizer\Flat\ProductNormalizer
  */
-class AttributeOptionNormalizer extends BaseNormalizer
+class AttributeOptionNormalizer implements NormalizerInterface
 {
     /** @var string[] */
-    protected $supportedFormats = ['csv', 'flat'];
+    protected $supportedFormats = ['flat'];
+
+    /** @var StandardNormalizer */
+    protected $standardNormalizer;
+
+    /** @var TranslationNormalizer  */
+    protected $translationNormalizer;
+
+    /**
+     * AttributeNormalizer constructor.
+     *
+     * @param NormalizerInterface   $standardNormalizer
+     * @param TranslationNormalizer $translationNormalizer
+     */
+    public function __construct(
+        NormalizerInterface $standardNormalizer,
+        TranslationNormalizer $translationNormalizer
+    ) {
+        $this->standardNormalizer = $standardNormalizer;
+        $this->translationNormalizer = $translationNormalizer;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param AttributeOptionInterface $object
+     *
+     * @return array
+     */
+    public function normalize($object, $format = null, array $context = [])
+    {
+        $standardAttributeOption = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $flatAttributeOption = $standardAttributeOption;
+
+        unset($flatAttributeOption['labels']);
+        $flatAttributeOption += $this->translationNormalizer->normalize(
+            $standardAttributeOption['labels'],
+            'flat',
+            $context
+        );
+
+        return $flatAttributeOption;
+    }
+
 
     /**
      * {@inheritdoc}
@@ -25,39 +69,5 @@ class AttributeOptionNormalizer extends BaseNormalizer
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof AttributeOptionInterface && in_array($format, $this->supportedFormats);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function normalize($object, $format = null, array $context = [])
-    {
-        if (array_key_exists('field_name', $context)) {
-            return [
-                $context['field_name'] => $object->getCode(),
-            ];
-        }
-
-        return parent::normalize($object, $format, $context);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function normalizeLabel(AttributeOptionInterface $entity, $context)
-    {
-        $labels = [];
-        $locales = isset($context['locales']) ? $context['locales'] : [];
-        foreach ($locales as $locale) {
-            $labels[sprintf('label-%s', $locale)] = '';
-        }
-
-        foreach ($entity->getOptionValues() as $translation) {
-            if (empty($locales) || in_array($translation->getLocale(), $locales)) {
-                $labels[sprintf('label-%s', $translation->getLocale())] = $translation->getValue();
-            }
-        }
-
-        return $labels;
     }
 }

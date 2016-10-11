@@ -19,7 +19,7 @@ class ChannelNormalizer implements NormalizerInterface
     {
         return [
             'code'             => $channel->getCode(),
-            'label'            => $channel->getLabel(),
+            'labels'           => ['en_US' => $channel->getLabel()],
             'currencies'       => $this->normalizeCurrencies($channel),
             'locales'          => $channel->getLocaleCodes(),
             'category_tree'    => $channel->getCategory()->getCode(),

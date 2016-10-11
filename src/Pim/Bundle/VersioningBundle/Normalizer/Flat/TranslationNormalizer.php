@@ -2,7 +2,7 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use Pim\Component\Catalog\Normalizer\Structured\TranslationNormalizer as BaseNormalizer;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Flat translation normalizer
@@ -11,10 +11,10 @@ use Pim\Component\Catalog\Normalizer\Structured\TranslationNormalizer as BaseNor
  * @copyright 2013 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class TranslationNormalizer extends BaseNormalizer
+class TranslationNormalizer implements NormalizerInterface
 {
     /**  @var string[] */
-    protected $supportedFormats = ['csv'];
+    protected $supportedFormats = ['flat'];
 
     /**
      * {@inheritdoc}
@@ -25,36 +25,27 @@ class TranslationNormalizer extends BaseNormalizer
     {
         $context = array_merge(
             [
-                'property' => 'label',
+                'field_name' => 'label',
                 'locales'  => [],
             ],
             $context
         );
+        $property = $context['field_name'];
 
-        $property = $context['property'];
-        $translations = array_fill_keys(
-            array_map(
-                function ($locale) use ($property) {
-                    return sprintf('%s-%s', $property, $locale);
-                },
-                $context['locales']
-            ),
-            ''
-        );
-
-        $method = sprintf('get%s', ucfirst($property));
-        foreach ($object->getTranslations() as $translation) {
-            if (method_exists($translation, $method) === false) {
-                throw new \LogicException(
-                    sprintf("Class %s doesn't provide method %s", get_class($translation), $method)
-                );
-            }
-            if (empty($context['locales']) || in_array($translation->getLocale(), $context['locales'])) {
-                $key = sprintf('%s-%s', $property, $translation->getLocale());
-                $translations[$key] = $translation->$method();
-            }
+        $translations = [];
+        foreach ($object as $locale => $translation) {
+            $translations[$property . '-' . $locale] = $translation;
         }
 
         return $translations;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsNormalization($data, $format = null)
+    {
+        return is_array($data) && in_array($format, $this->supportedFormats);
     }
 }

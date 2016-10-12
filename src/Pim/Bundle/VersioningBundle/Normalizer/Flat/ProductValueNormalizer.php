@@ -19,111 +19,73 @@ use Symfony\Component\Serializer\SerializerInterface;
  * @copyright 2014 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class ProductValueNormalizer implements NormalizerInterface, SerializerAwareInterface
+class ProductValueNormalizer implements NormalizerInterface
 {
-    /** @var SerializerInterface */
-    protected $serializer;
-
-    /** @var LocalizerRegistryInterface */
-    protected $localizerRegistry;
+    const LABEL_SEPARATOR = '-';
 
     /** @var string[] */
-    protected $supportedFormats = ['csv', 'flat'];
+    protected $supportedFormats = ['flat'];
 
-    /** @var int */
-    protected $precision;
+    /** @var NormalizerInterface */
+    protected $priceNormalizer;
+
+    /** @var NormalizerInterface */
+    protected $metricNormalizer;
+
+    /** @var NormalizerInterface */
+    protected $collectionNormalizer;
 
     /**
-     * @param LocalizerRegistryInterface $localizerRegistry
-     * @param int                        $precision
+     * @param NormalizerInterface $priceNormalizer
+     * @param NormalizerInterface $metricNormalizer
+     * @param NormalizerInterface $collectionNormalizer
      */
-    public function __construct(LocalizerRegistryInterface $localizerRegistry, $precision = 4)
-    {
-        $this->localizerRegistry = $localizerRegistry;
-        $this->precision = $precision;
+    public function __construct(
+        NormalizerInterface $priceNormalizer,
+        NormalizerInterface $metricNormalizer,
+        NormalizerInterface $collectionNormalizer
+    ) {
+        $this->priceNormalizer = $priceNormalizer;
+        $this->metricNormalizer = $metricNormalizer;
+        $this->collectionNormalizer = $collectionNormalizer;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * This method may cause problems in the future as it guesses which normalizer to call based on
+     * the product value structure.
+     * Waiting for the 2.0 'type' product value key to properly use the right serializer.
+     *
+     * @param array $object
+     *
+     * @return array
      */
-    public function setSerializer(SerializerInterface $serializer)
+    public function normalize($object, $format = null, array $context = [])
     {
-        $this->serializer = $serializer;
-    }
+        $flatProductValue = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function normalize($entity, $format = null, array $context = [])
-    {
-        $data = $entity->getData();
-        $fieldName = $this->getFieldName($entity);
-        if ($this->filterLocaleSpecific($entity)) {
-            return [];
-        }
+        foreach ($object as $attributeName => $productValues) {
+            foreach ($productValues as $productValue) {
+                if (isset($productValue['data']['unit'])) {
+                    $flatProductValue += (array) $this->metricNormalizer->normalize($object, 'flat', $context);
+                } elseif (is_array($productValue['data'][0]) && isset($productValue['data'][0]['currency'])) {
+                    $flatProductValue += (array) $this->priceNormalizer->normalize($object, 'flat', $context);
+                } elseif (is_array($productValue['data'])) {
+                    $flatProductValue += $this->collectionNormalizer->normalize($object, 'flat', $context);
+                } else {
+                    $attributeLabel = $this->normalizeAttributeLabel(
+                        $attributeName,
+                        $productValue['scope'],
+                        $productValue['locale']
+                    );
 
-        $result = null;
-
-        if (is_array($data)) {
-            $data = new ArrayCollection($data);
-        }
-
-        $type = $entity->getAttribute()->getAttributeType();
-        $backendType = $entity->getAttribute()->getBackendType();
-
-        if (AttributeTypes::BOOLEAN === $type) {
-            $result = [$fieldName => (string) (int) $data];
-        } elseif (is_null($data)) {
-            $result = [$fieldName => ''];
-            if ('metric' === $backendType) {
-                $result[$fieldName . '-unit'] = '';
-            }
-        } elseif (is_int($data)) {
-            $result = [$fieldName => (string) $data];
-        } elseif (is_float($data) || 'decimal' === $entity->getAttribute()->getBackendType()) {
-            $pattern = $entity->getAttribute()->isDecimalsAllowed() ? sprintf('%%.%sF', $this->precision) : '%d';
-            $result = [$fieldName => sprintf($pattern, $data)];
-        } elseif (is_string($data)) {
-            $result = [$fieldName => $data];
-        } elseif (is_object($data)) {
-            // TODO: Find a way to have proper currency-suffixed keys for normalized price data
-            // even when an empty collection is passed
-            if ('prices' === $backendType && $data instanceof Collection && $data->isEmpty()) {
-                $result = [];
-            } elseif ('options' === $backendType && $data instanceof Collection && $data->isEmpty() === false) {
-                $data = $this->sortOptions($data);
-                $context['field_name'] = $fieldName;
-                $result = $this->serializer->normalize($data, $format, $context);
-            } else {
-                $context['field_name'] = $fieldName;
-                if ('metric' === $backendType) {
-                    $context['decimals_allowed'] = $entity->getAttribute()->isDecimalsAllowed();
-                } elseif ('media' === $backendType) {
-                    $context['value'] = $entity;
+                    $flatProductValue[$attributeLabel] = null !== $productValue['data'] ? $productValue['data'] : '';
                 }
-
-                $result = $this->serializer->normalize($data, $format, $context);
             }
         }
 
-        if (null === $result) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Cannot normalize product value "%s" which data is a(n) "%s"',
-                    $fieldName,
-                    is_object($data) ? get_class($data) : gettype($data)
-                )
-            );
-        }
-
-        $localizer = $this->localizerRegistry->getLocalizer($type);
-        if (null !== $localizer) {
-            foreach ($result as $field => $data) {
-                $result[$field] = $localizer->localize($data, $context);
-            }
-        }
-
-        return $result;
+        return $flatProductValue;
     }
 
     /**
@@ -131,71 +93,23 @@ class ProductValueNormalizer implements NormalizerInterface, SerializerAwareInte
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof ProductValueInterface && in_array($format, $this->supportedFormats);
+        return in_array($format, $this->supportedFormats);
     }
 
     /**
-     * Normalize the field name for values
+     * Generates the flat label for the collection product value
      *
-     * @param ProductValueInterface $value
+     * @param string $attribute
+     * @param string $scope
+     * @param string $locale
      *
      * @return string
      */
-    protected function getFieldName(ProductValueInterface $value)
+    protected function normalizeAttributeLabel($attribute, $scope, $locale)
     {
-        // TODO : should be extracted
-        $suffix = '';
+        $scopeLabel = null !== $scope ? self::LABEL_SEPARATOR . $scope : '';
+        $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
 
-        if ($value->getAttribute()->isLocalizable()) {
-            $suffix = sprintf('-%s', $value->getLocale());
-        }
-        if ($value->getAttribute()->isScopable()) {
-            $suffix .= sprintf('-%s', $value->getScope());
-        }
-
-        return $value->getAttribute()->getCode() . $suffix;
-    }
-
-    /**
-     * Check if the attribute is locale specific and check if the given local exist in available locales
-     *
-     * @param ProductValueInterface $value
-     *
-     * @return bool
-     */
-    protected function filterLocaleSpecific(ProductValueInterface $value)
-    {
-        /** @var AttributeInterface $attribute */
-        $attribute = $value->getAttribute();
-        if ($attribute->isLocaleSpecific()) {
-            $currentLocale = $value->getLocale();
-            $availableLocales = $attribute->getLocaleSpecificCodes();
-            if (!in_array($currentLocale, $availableLocales)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Sort the collection of options by their defined sort order in the attribute
-     *
-     * @param Collection $optionsCollection
-     *
-     * @return Collection
-     */
-    protected function sortOptions(Collection $optionsCollection)
-    {
-        $options = $optionsCollection->toArray();
-        usort(
-            $options,
-            function ($first, $second) {
-                return $first->getSortOrder() > $second->getSortOrder();
-            }
-        );
-        $sortedCollection = new ArrayCollection($options);
-
-        return $sortedCollection;
+        return $attribute . $scopeLabel . $localeLabel;
     }
 }

@@ -19,7 +19,9 @@ class TranslationNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @throws \LogicException
+     * @param array $object
+     *
+     * @return array
      */
     public function normalize($object, $format = null, array $context = [])
     {
@@ -40,12 +42,11 @@ class TranslationNormalizer implements NormalizerInterface
         return $translations;
     }
 
-
     /**
      * {@inheritdoc}
      */
     public function supportsNormalization($data, $format = null)
     {
-        return is_array($data) && in_array($format, $this->supportedFormats);
+        return is_array($data) && in_array($format, $this->supportedFormats) && isset($data['labels']);
     }
 }

@@ -2,11 +2,7 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use Pim\Component\Catalog\Model\AssociationInterface;
-use Pim\Component\Catalog\Model\FamilyInterface;
-use Pim\Component\Catalog\Model\GroupInterface;
 use Pim\Component\Catalog\Model\ProductInterface;
-use Pim\Component\Catalog\Model\ProductValueInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\SerializerAwareNormalizer;
 use Pim\Component\Catalog\Normalizer\Standard\ProductNormalizer as StandardNormalizer;
@@ -18,7 +14,7 @@ use Pim\Component\Catalog\Normalizer\Standard\ProductNormalizer as StandardNorma
  * @copyright 2013 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class ProductNormalizer implements NormalizerInterface
+class ProductNormalizer extends SerializerAwareNormalizer implements NormalizerInterface
 {
     /** @staticvar string */
     const ITEM_SEPARATOR = ',';
@@ -29,36 +25,46 @@ class ProductNormalizer implements NormalizerInterface
     /** @var StandardNormalizer */
     protected $standardNormalizer;
 
+    /** @var ProductValueNormalizer */
+    protected $productValueNormalizer;
+
     /**
-     * @param StandardNormalizer $standardNormalizer
+     * @param NormalizerInterface       $standardNormalizer
+     * @param ProductValueNormalizer    $productValueNormalizer
      */
-    public function __construct(StandardNormalizer $standardNormalizer)
-    {
+    public function __construct(
+        NormalizerInterface $standardNormalizer,
+        ProductValueNormalizer $productValueNormalizer
+    ) {
         $this->standardNormalizer = $standardNormalizer;
+        $this->productValueNormalizer = $productValueNormalizer;
     }
 
     /**
      * {@inheritdoc}
      *
      * @param ProductInterface $object
+     *
+     * @return array
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        if (!$this->standardNormalizer->supportsNormalization($object, 'standard')) {
-            return null;
-        }
-
         $standardProduct = $this->standardNormalizer->normalize($object, 'standard', $context);
         $flatProduct = $standardProduct;
 
+        unset($flatProduct['identifier']);
+
         $flatProduct['groups'] = implode(self::ITEM_SEPARATOR, $standardProduct['groups']);
         $flatProduct['categories'] = implode(self::ITEM_SEPARATOR, $standardProduct['categories']);
-        $flatProduct['associations'] = $this->normalizeAssociations($standardProduct['associations']);
-        $flatProduct['values'] = $this->normalizeValues($standardProduct['values']);
 
-        unset($flatProduct['createdAt']);
-        unset($flatProduct['updatedAt']);
+        unset($flatProduct['associations']);
+        $flatProduct += $this->normalizeAssociations($standardProduct['associations']);
 
+        unset($flatProduct['values']);
+        $flatProduct += $this->normalizeValues($standardProduct['values'], 'flat', $context);
+
+        unset($flatProduct['created']);
+        unset($flatProduct['updated']);
 
         return $flatProduct;
     }
@@ -88,5 +94,29 @@ class ProductNormalizer implements NormalizerInterface
         }
 
         return $flatAssociations;
+    }
+
+    /**
+     * Normalize values from the prodct to serialize into flat format
+     *
+     * @param array  $productValues
+     * @param string $format
+     * @param array  $context
+     *
+     * @return array
+     */
+    protected function normalizeValues($productValues, $format = null, array $context = [])
+    {
+        $normalizedValues = [];
+        foreach ($productValues as $attribute => $productValue) {
+            $normalizedValues += (array) $this->productValueNormalizer->normalize(
+                [$attribute => $productValue],
+                $format,
+                $context
+            );
+        }
+        ksort($normalizedValues);
+
+        return $normalizedValues;
     }
 }

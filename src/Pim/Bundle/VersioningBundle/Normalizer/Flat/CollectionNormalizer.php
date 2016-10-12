@@ -3,12 +3,13 @@
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Doctrine\Common\Collections\Collection;
+use PhpCollection\CollectionInterface;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\SerializerAwareNormalizer;
 
 /**
- * Normalize a doctrine collection
+ * Normalize a product value collection
  *
  * @author    Gildas Quemener <gildas@akeneo.com>
  * @copyright 2014 Akeneo SAS (http://www.akeneo.com)
@@ -18,60 +19,60 @@ use Symfony\Component\Serializer\Normalizer\SerializerAwareNormalizer;
  */
 class CollectionNormalizer extends SerializerAwareNormalizer implements NormalizerInterface
 {
-    /** @var string[] */
-    protected $supportedFormats = ['csv', 'flat'];
+    const LABEL_SEPARATOR = '-';
+    const ITEM_SEPARATOR = ',';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsNormalization($data, $format = null)
-    {
-        return $data instanceof Collection && in_array($format, $this->supportedFormats);
-    }
+    /** @var string[] */
+    protected $supportedFormats = ['flat'];
 
     /**
      * {@inheritdoc}
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        $result = [];
-        foreach ($object as $item) {
-            $normalizedItem = $this->serializer->normalize($item, $format, $context);
-            if (is_array($normalizedItem)) {
-                foreach ($normalizedItem as $key => $value) {
-                    if (array_key_exists($key, $result)) {
-                        // TODO: this breaks product value collection denormalization into csv
-                        // for prices and metric
-                        $result[$key] = $result[$key] . ',' . $value;
-                    } else {
-                        $result = array_merge($result, $normalizedItem);
-                    }
-                }
-            } else {
-                if (is_array($result)) {
-                    $result = '';
-                }
-                $result .= $normalizedItem . ',';
+        $flatCollection = [];
+
+        foreach ($object as $attribute => $productValues) {
+            foreach ($productValues as $collectionValue) {
+                $attributeLabel = $this->normalizeAttributeLabel(
+                    $attribute,
+                    $collectionValue['scope'],
+                    $collectionValue['locale']
+                );
+
+                $flatCollection[$attributeLabel] = implode(self::ITEM_SEPARATOR, $collectionValue['data']);
             }
         }
 
-        if (is_array($result) && count($result) > 0) {
-            return $result;
-        }
+        return $flatCollection;
+    }
 
-        if (!isset($context['field_name'])) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Missing required "field_name" context value, got "%s"',
-                    implode(', ', array_keys($context))
-                )
-            );
-        }
+    /**
+     * {@inheritdoc}
+     *
+     * @param CollectionInterface $channel
+     *
+     * @return array
+     */
+    public function supportsNormalization($data, $format = null)
+    {
+        return in_array($format, $this->supportedFormats);
+    }
 
-        if (is_array($result)) {
-            $result = '';
-        }
+    /**
+     * Generates the flat label for the price product value
+     *
+     * @param string $attribute
+     * @param string $scope
+     * @param string $locale
+     *
+     * @return string
+     */
+    protected function normalizeAttributeLabel($attribute, $scope, $locale)
+    {
+        $scopeLabel = null !== $scope ? self::LABEL_SEPARATOR . $scope : '';
+        $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
 
-        return [$context['field_name'] => rtrim($result, ',')];
+        return $attribute . $localeLabel . $scopeLabel;
     }
 }

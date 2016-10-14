@@ -25,11 +25,11 @@ class GroupNormalizer implements NormalizerInterface
     protected $standardNormalizer;
 
     /**
-     * @param StandardNormalizer    $standardNormalizer
+     * @param NormalizerInterface   $standardNormalizer
      * @param TranslationNormalizer $translationNormalizer
      */
     public function __construct(
-        StandardNormalizer $standardNormalizer,
+        NormalizerInterface $standardNormalizer,
         TranslationNormalizer $translationNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
@@ -38,20 +38,18 @@ class GroupNormalizer implements NormalizerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param GroupInterface $object
+     *
+     * @return array
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        if (!$this->standardNormalizer->supportsNormalization($object, 'standard')) {
-            return null;
-        }
-
         $standardGroup = $this->standardNormalizer->normalize($object, 'standard', $context);
         $flatGroup = $standardGroup;
 
         unset($flatGroup['labels']);
-        if ($this->translationNormalizer->supportsNormalization($standardGroup['labels'], 'flat')) {
-            $flatGroup += $this->translationNormalizer->normalize($standardGroup['labels'], 'flat', $context);
-        }
+        $flatGroup += $this->translationNormalizer->normalize($standardGroup['labels'], 'flat', $context);
 
         return $flatGroup;
     }
@@ -61,8 +59,6 @@ class GroupNormalizer implements NormalizerInterface
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof GroupInterface
-        && !$data->getType()->isVariant()
-        && in_array($format, $this->supportedFormats);
+        return $data instanceof GroupInterface && in_array($format, $this->supportedFormats);
     }
 }

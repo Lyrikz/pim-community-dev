@@ -77,7 +77,7 @@ class ChannelNormalizer implements NormalizerInterface
      *
      * @return array
      */
-    protected function normalizeConversionUnits($conversionUnits)
+    protected function normalizeConversionUnits(array $conversionUnits)
     {
         $flatArray = [];
 

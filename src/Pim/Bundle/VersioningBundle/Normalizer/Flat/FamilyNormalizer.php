@@ -46,10 +46,6 @@ class FamilyNormalizer implements NormalizerInterface
      */
     public function normalize($family, $format = null, array $context = [])
     {
-        if (!$this->standardNormalizer->supportsNormalization($family, 'standard')) {
-            return null;
-        }
-
         $standardFamily = $this->standardNormalizer->normalize($family, 'standard', $context);
         $flatFamily = $standardFamily;
 
@@ -59,9 +55,7 @@ class FamilyNormalizer implements NormalizerInterface
         $flatFamily += $this->normalizeRequirements($standardFamily['attribute_requirements']);
 
         unset($flatFamily['labels']);
-        if ($this->translationNormalizer->supportsNormalization($standardFamily['labels'], 'flat')) {
-            $flatFamily += $this->translationNormalizer->normalize($standardFamily['labels'], 'flat', $context);
-        }
+        $flatFamily += $this->translationNormalizer->normalize($standardFamily['labels'], 'flat', $context);
 
         return $flatFamily;
     }
@@ -81,11 +75,11 @@ class FamilyNormalizer implements NormalizerInterface
      *
      * @return array
      */
-    protected function normalizeRequirements($requirements)
+    protected function normalizeRequirements(array $requirements)
     {
         $flat = [];
-        foreach ($requirements as $channel => $attributes) {
-            $flat['requirements-' . $channel] = implode(self::ITEM_SEPARATOR, $attributes);
+        foreach ($requirements as $channelCode => $attributeCodes) {
+            $flat['requirements-' . $channelCode] = implode(self::ITEM_SEPARATOR, $attributeCodes);
         }
 
         return $flat;

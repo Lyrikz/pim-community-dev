@@ -3,7 +3,6 @@
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\AttributeInterface;
-use Pim\Component\Catalog\Model\ProductValueInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -29,8 +28,6 @@ class AttributeNormalizer implements NormalizerInterface
     protected $translationNormalizer;
 
     /**
-     * AttributeNormalizer constructor.
-     *
      * @param NormalizerInterface $standardNormalizer
      * @param NormalizerInterface $translationNormalizer
      */
@@ -91,7 +88,6 @@ class AttributeNormalizer implements NormalizerInterface
             foreach ($options as $option) {
                 $item = [];
                 foreach ($option->getOptionValues() as $value) {
-                    /* @var ProductValueInterface $value */
                     $label = str_replace('{locale}', $value->getLocale(), self::LOCALIZABLE_PATTERN);
                     $label = str_replace('{value}', $value->getValue(), $label);
                     $item[] = $label;

@@ -22,7 +22,7 @@ class AttributeOptionNormalizer implements NormalizerInterface
     /** @var NormalizerInterface */
     protected $standardNormalizer;
 
-    /** @var NormalizerInterfacer */
+    /** @var NormalizerInterface */
     protected $translationNormalizer;
 
     /**

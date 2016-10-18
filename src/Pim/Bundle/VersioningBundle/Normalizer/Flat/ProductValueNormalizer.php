@@ -57,7 +57,7 @@ class ProductValueNormalizer implements NormalizerInterface
     {
         $flatProductValue = [];
 
-        foreach ($standardProductValue as $attributeName => $productValues) {
+        foreach ($standardProductValue as $attributeCode => $productValues) {
             foreach ($productValues as $productValue) {
                 if (isset($productValue['data']['unit'])) {
                     $flatProductValue += (array) $this->metricNormalizer->normalize(
@@ -79,7 +79,7 @@ class ProductValueNormalizer implements NormalizerInterface
                     );
                 } else {
                     $attributeLabel = $this->normalizeAttributeLabel(
-                        $attributeName,
+                        $attributeCode,
                         $productValue['scope'],
                         $productValue['locale']
                     );
@@ -104,16 +104,16 @@ class ProductValueNormalizer implements NormalizerInterface
      * Generates the flat label for the collection product value
      *
      * @param string $attribute
-     * @param string $scope
-     * @param string $locale
+     * @param string $channelCode
+     * @param string $localeCode
      *
      * @return string
      */
-    protected function normalizeAttributeLabel($attribute, $scope, $locale)
+    protected function normalizeAttributeLabel($attribute, $channelCode, $localeCode)
     {
-        $scopeLabel = null !== $scope ? self::LABEL_SEPARATOR . $scope : '';
-        $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
+        $channelLabel = null !== $channelCode ? self::LABEL_SEPARATOR . $channelCode : '';
+        $localeLabel = null !== $localeCode ? self::LABEL_SEPARATOR . $localeCode : '';
 
-        return $attribute . $scopeLabel . $localeLabel;
+        return $attribute . $channelLabel . $localeLabel;
     }
 }

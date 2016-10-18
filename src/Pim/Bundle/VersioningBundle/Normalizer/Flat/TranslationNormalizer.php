@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class TranslationNormalizer implements NormalizerInterface
 {
+    const LABEL_SEPARATOR = '-';
+
     /**  @var string[] */
     protected $supportedFormats = ['flat'];
 
@@ -33,10 +35,19 @@ class TranslationNormalizer implements NormalizerInterface
             $context
         );
         $property = $context['field_name'];
+        $localCodes = $context['locales'];
 
         $translations = [];
-        foreach ($translatable as $locale => $translation) {
-            $translations[$property . '-' . $locale] = $translation;
+        foreach ($translatable as $localeCode => $translation) {
+            if (empty($localCodes) || in_array($localeCode, $localCodes)) {
+                $translations[$property . self::LABEL_SEPARATOR . $localeCode] = $translation;
+            }
+        }
+
+        foreach ($localCodes as $localeCode) {
+            if (!isset($translations[$property . self::LABEL_SEPARATOR . $localeCode])) {
+                $translations[$property . self::LABEL_SEPARATOR . $localeCode] = '';
+            }
         }
 
         return $translations;

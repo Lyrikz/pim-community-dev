@@ -29,15 +29,15 @@ class PriceNormalizer implements NormalizerInterface
     {
         $flatPrice = [];
 
-        foreach ($standardPrice as $attribute => $productValues) {
+        foreach ($standardPrice as $attributeCode => $productValues) {
             foreach ($productValues as $priceValue) {
-                $locale = $priceValue['locale'];
-                $scope = $priceValue['scope'];
+                $localeCode = $priceValue['locale'];
+                $channelCode = $priceValue['scope'];
                 foreach ($priceValue['data'] as $price) {
                     $attributeLabel = $this->normalizeAttributeLabel(
-                        $attribute,
-                        $scope,
-                        $locale,
+                        $attributeCode,
+                        $channelCode,
+                        $localeCode,
                         $price['currency']
                     );
                     $flatPrice[$attributeLabel] = $price['amount'];
@@ -53,24 +53,28 @@ class PriceNormalizer implements NormalizerInterface
      */
     public function supportsNormalization($data, $format = null)
     {
-        return in_array($format, $this->supportedFormats);
+        return isset($data['data']) &&
+        is_array($data['data']) &&
+        isset($data['data'][0]) &&
+        isset($data['data'][0]['currency']) &&
+        in_array($format, $this->supportedFormats);
     }
 
     /**
      * Generates the flat label for the collection product value
      *
-     * @param string $attribute
-     * @param string $scope
-     * @param string $locale
+     * @param string $attributeCode
+     * @param string $channelCode
+     * @param string $localeCode
      * @param string $currency
      *
      * @return string
      */
-    protected function normalizeAttributeLabel($attribute, $scope, $locale, $currency)
+    protected function normalizeAttributeLabel($attributeCode, $channelCode, $localeCode, $currency)
     {
-        $scopeLabel = null !== $scope ? self::LABEL_SEPARATOR . $scope : '';
-        $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
+        $channelLabel = null !== $channelCode ? self::LABEL_SEPARATOR . $channelCode : '';
+        $localeLabel = null !== $localeCode ? self::LABEL_SEPARATOR . $localeCode : '';
 
-        return $attribute . self::LABEL_SEPARATOR . $currency . $scopeLabel . $localeLabel;
+        return $attributeCode . self::LABEL_SEPARATOR . $currency . $channelLabel . $localeLabel;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use PhpCollection\CollectionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -24,15 +23,19 @@ class CollectionNormalizer implements NormalizerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param array $collection
+     *
+     * @return array
      */
     public function normalize($collection, $format = null, array $context = [])
     {
         $flatCollection = [];
 
-        foreach ($collection as $attribute => $productValues) {
+        foreach ($collection as $attributeCode => $productValues) {
             foreach ($productValues as $collectionValue) {
                 $attributeLabel = $this->normalizeAttributeLabel(
-                    $attribute,
+                    $attributeCode,
                     $collectionValue['scope'],
                     $collectionValue['locale']
                 );
@@ -46,30 +49,26 @@ class CollectionNormalizer implements NormalizerInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param CollectionInterface $channel
-     *
-     * @return array
      */
     public function supportsNormalization($data, $format = null)
     {
-        return in_array($format, $this->supportedFormats);
+        return isset($data['data']) && is_array($data['data']) && in_array($format, $this->supportedFormats);
     }
 
     /**
      * Generates the flat label for the price product value
      *
-     * @param string $attribute
-     * @param string $scope
-     * @param string $locale
+     * @param string $attributeCode
+     * @param string $channelCode
+     * @param string $localeCode
      *
      * @return string
      */
-    protected function normalizeAttributeLabel($attribute, $scope, $locale)
+    protected function normalizeAttributeLabel($attributeCode, $channelCode, $localeCode)
     {
-        $scopeLabel = null !== $scope ? self::LABEL_SEPARATOR . $scope : '';
-        $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
+        $channelLabel = null !== $channelCode ? self::LABEL_SEPARATOR . $channelCode : '';
+        $localeLabel = null !== $localeCode ? self::LABEL_SEPARATOR . $localeCode : '';
 
-        return $attribute . $localeLabel . $scopeLabel;
+        return $attributeCode . $localeLabel . $channelLabel;
     }
 }

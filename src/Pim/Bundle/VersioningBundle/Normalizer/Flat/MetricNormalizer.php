@@ -35,27 +35,28 @@ class MetricNormalizer implements NormalizerInterface
 
         $flatMetric = [];
 
-        foreach ($standardMetric as $attribute => $productValues) {
+        foreach ($standardMetric as $attributeCode => $productValues) {
             foreach ($productValues as $metricValue) {
-                $locale = $metricValue['locale'];
-                $scope = $metricValue['scope'];
+                $localeCode = $metricValue['locale'];
+                $channelCode = $metricValue['scope'];
 
                 $attributeLabel = $this->normalizeAttributeLabel(
-                    $attribute,
-                    $scope,
-                    $locale
+                    $attributeCode,
+                    $channelCode,
+                    $localeCode,
+                    $isUnitLabel = false
                 );
 
                 if (self::MULTIPLE_FIELDS_FORMAT === $context['metric_format']) {
-                    $attributeUnit = $this->normalizeAttributeLabel(
-                        $attribute,
-                        $scope,
-                        $locale,
-                        $isUnit = true
+                    $attributeUnitLabel = $this->normalizeAttributeLabel(
+                        $attributeCode,
+                        $channelCode,
+                        $localeCode,
+                        $isUnitLabel = true
                     );
 
                     $flatMetric[$attributeLabel] = $metricValue['data']['amount'];
-                    $flatMetric[$attributeUnit] = $metricValue['data']['unit'];
+                    $flatMetric[$attributeUnitLabel] = $metricValue['data']['unit'];
                 } elseif (self::SINGLE_FIELD_FORMAT === $context['metric_format']) {
                     $flatMetric[$attributeLabel] = '';
 
@@ -112,21 +113,24 @@ class MetricNormalizer implements NormalizerInterface
     }
 
     /**
-     * Generates the attribute label based on unit, scope, locale and context
+     * Generates the attribute label based on unit, scope, locale.
      *
-     * @param string $attribute
-     * @param string $scope
-     * @param string $locale
-     * @param bool   $isUnit
+     * Generates the unit attribute label or the attribute label based on the $isUnitLabel parameter
+     *
+     * @param string $attributeCode
+     * @param string $channelCode
+     * @param string $localeCode
+     * @param boolean $isUnitLabel
      *
      * @return string
      */
-    protected function normalizeAttributeLabel($attribute, $scope, $locale, $isUnit = false)
+    protected function normalizeAttributeLabel($attributeCode, $channelCode, $localeCode, $isUnitLabel)
     {
-        $scopeLabel = null !== $scope ? self::LABEL_SEPARATOR . $scope : '';
-        $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
-        $unitLabel = false !== $isUnit ? self::LABEL_SEPARATOR . self::UNIT_LABEL : '';
+        $channelLabel = null !== $channelCode ? self::LABEL_SEPARATOR . $channelCode : '';
+        $localeLabel = null !== $localeCode ? self::LABEL_SEPARATOR . $localeCode : '';
+        $unitLabel = true === $isUnitLabel ?
+            self::LABEL_SEPARATOR . self::UNIT_LABEL : '';
 
-        return $attribute . $unitLabel . $localeLabel . $scopeLabel;
+        return $attributeCode . $unitLabel . $localeLabel . $channelLabel;
     }
 }

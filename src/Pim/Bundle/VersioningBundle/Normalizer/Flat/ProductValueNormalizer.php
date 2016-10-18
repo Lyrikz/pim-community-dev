@@ -57,22 +57,34 @@ class ProductValueNormalizer implements NormalizerInterface
      * the product value structure.
      * Waiting for the 2.0 'type' product value key to properly use the right serializer.
      *
-     * @param array $object
+     * @param array $standardProductValue
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($standardProductValue, $format = null, array $context = [])
     {
         $flatProductValue = [];
 
-        foreach ($object as $attributeName => $productValues) {
+        foreach ($standardProductValue as $attributeName => $productValues) {
             foreach ($productValues as $productValue) {
                 if (isset($productValue['data']['unit'])) {
-                    $flatProductValue += (array) $this->metricNormalizer->normalize($object, 'flat', $context);
+                    $flatProductValue += (array) $this->metricNormalizer->normalize(
+                        $standardProductValue,
+                        'flat',
+                        $context
+                    );
                 } elseif (is_array($productValue['data'][0]) && isset($productValue['data'][0]['currency'])) {
-                    $flatProductValue += (array) $this->priceNormalizer->normalize($object, 'flat', $context);
+                    $flatProductValue += (array) $this->priceNormalizer->normalize(
+                        $standardProductValue,
+                        'flat',
+                        $context
+                    );
                 } elseif (is_array($productValue['data'])) {
-                    $flatProductValue += $this->collectionNormalizer->normalize($object, 'flat', $context);
+                    $flatProductValue += $this->collectionNormalizer->normalize(
+                        $standardProductValue,
+                        'flat',
+                        $context
+                    );
                 } else {
                     $attributeLabel = $this->normalizeAttributeLabel(
                         $attributeName,

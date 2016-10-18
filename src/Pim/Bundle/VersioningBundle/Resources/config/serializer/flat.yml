@@ -109,7 +109,7 @@ services:
     pim_versioning.serializer.normalizer.flat.variant_group:
         class: '%pim_serializer.normalizer.flat.variant_group.class%'
         arguments:
-            - '@pim_catalog.normalizer.standard.group'
+            - '@pim_catalog.normalizer.standard.variant_group'
             - '@pim_versioning.serializer.normalizer.flat.product_value'
             - '@pim_versioning.serializer.normalizer.flat.label_translation'
 

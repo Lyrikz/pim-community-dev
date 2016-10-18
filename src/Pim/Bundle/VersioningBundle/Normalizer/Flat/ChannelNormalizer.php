@@ -45,9 +45,9 @@ class ChannelNormalizer implements NormalizerInterface
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($channel, $format = null, array $context = [])
     {
-        $standardChannel = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardChannel = $this->standardNormalizer->normalize($channel, 'standard', $context);
 
         $flatChannel = $standardChannel;
         $flatChannel['currencies'] = implode(self::ITEM_SEPARATOR, $standardChannel['currencies']);

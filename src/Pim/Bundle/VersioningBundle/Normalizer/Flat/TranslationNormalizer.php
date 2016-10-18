@@ -19,11 +19,11 @@ class TranslationNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param array $object
+     * @param array $translatable
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($translatable, $format = null, array $context = [])
     {
         $context = array_merge(
             [
@@ -35,7 +35,7 @@ class TranslationNormalizer implements NormalizerInterface
         $property = $context['field_name'];
 
         $translations = [];
-        foreach ($object as $locale => $translation) {
+        foreach ($translatable as $locale => $translation) {
             $translations[$property . '-' . $locale] = $translation;
         }
 

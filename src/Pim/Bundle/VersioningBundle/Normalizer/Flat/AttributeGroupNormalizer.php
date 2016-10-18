@@ -40,13 +40,13 @@ class AttributeGroupNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param AttributeGroupInterface $object
+     * @param AttributeGroupInterface $attributeGroup
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($attributeGroup, $format = null, array $context = [])
     {
-        $standardAttributeGroup = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardAttributeGroup = $this->standardNormalizer->normalize($attributeGroup, 'standard', $context);
         $flatAttributeGroup = $standardAttributeGroup;
 
         $flatAttributeGroup['attributes'] = implode(self::ITEM_SEPARATOR, $standardAttributeGroup['attributes']);

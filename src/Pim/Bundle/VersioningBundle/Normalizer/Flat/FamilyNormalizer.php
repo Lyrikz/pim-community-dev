@@ -40,17 +40,17 @@ class FamilyNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param FamilyInterface $object
+     * @param FamilyInterface $family
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($family, $format = null, array $context = [])
     {
-        if (!$this->standardNormalizer->supportsNormalization($object, 'standard')) {
+        if (!$this->standardNormalizer->supportsNormalization($family, 'standard')) {
             return null;
         }
 
-        $standardFamily = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardFamily = $this->standardNormalizer->normalize($family, 'standard', $context);
         $flatFamily = $standardFamily;
 
         $flatFamily['attributes'] = implode(self::ITEM_SEPARATOR, $flatFamily['attributes']);

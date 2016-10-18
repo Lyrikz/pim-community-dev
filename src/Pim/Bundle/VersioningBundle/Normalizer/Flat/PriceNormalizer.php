@@ -21,15 +21,15 @@ class PriceNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param array $object
+     * @param array $standardPrice
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($standardPrice, $format = null, array $context = [])
     {
         $flatPrice = [];
 
-        foreach ($object as $attribute => $productValues) {
+        foreach ($standardPrice as $attribute => $productValues) {
             foreach ($productValues as $priceValue) {
                 $locale = $priceValue['locale'];
                 $scope = $priceValue['scope'];

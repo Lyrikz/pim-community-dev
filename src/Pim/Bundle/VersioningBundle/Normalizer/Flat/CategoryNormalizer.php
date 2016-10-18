@@ -38,13 +38,13 @@ class CategoryNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param CategoryInterface $object
+     * @param CategoryInterface $category
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($category, $format = null, array $context = [])
     {
-        $standardCategory = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardCategory = $this->standardNormalizer->normalize($category, 'standard', $context);
         $flatCategory = $standardCategory;
 
         unset($flatCategory['labels']);

@@ -45,13 +45,13 @@ class AttributeNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param $object AttributeInterface
+     * @param $attribute AttributeInterface
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($attribute, $format = null, array $context = [])
     {
-        $standardAttribute = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardAttribute = $this->standardNormalizer->normalize($attribute, 'standard', $context);
 
         $flatAttribute = $standardAttribute;
         $flatAttribute['allowed_extensions'] = implode(self::ITEM_SEPARATOR, $standardAttribute['allowed_extensions']);
@@ -60,7 +60,7 @@ class AttributeNormalizer implements NormalizerInterface
         unset($flatAttribute['labels']);
         $flatAttribute += $this->translationNormalizer->normalize($standardAttribute['labels'], 'flat', $context);
 
-        $flatAttribute['options'] = $this->normalizeOptions($object);
+        $flatAttribute['options'] = $this->normalizeOptions($attribute);
 
         return $flatAttribute;
     }

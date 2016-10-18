@@ -25,11 +25,11 @@ class CollectionNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($collection, $format = null, array $context = [])
     {
         $flatCollection = [];
 
-        foreach ($object as $attribute => $productValues) {
+        foreach ($collection as $attribute => $productValues) {
             foreach ($productValues as $collectionValue) {
                 $attributeLabel = $this->normalizeAttributeLabel(
                     $attribute,

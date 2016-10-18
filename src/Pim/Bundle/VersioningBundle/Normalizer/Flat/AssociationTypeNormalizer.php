@@ -38,13 +38,13 @@ class AssociationTypeNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param AssociationTypeInterface $object
+     * @param AssociationTypeInterface $associationType
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($associationType, $format = null, array $context = [])
     {
-        $standardAssociationType = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardAssociationType = $this->standardNormalizer->normalize($associationType, 'standard', $context);
         $flatAssociationType = $standardAssociationType;
 
         unset($flatAssociationType['labels']);

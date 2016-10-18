@@ -40,13 +40,13 @@ class AttributeOptionNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param AttributeOptionInterface $object
+     * @param AttributeOptionInterface $attributeOption
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($attributeOption, $format = null, array $context = [])
     {
-        $standardAttributeOption = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardAttributeOption = $this->standardNormalizer->normalize($attributeOption, 'standard', $context);
         $flatAttributeOption = $standardAttributeOption;
 
         unset($flatAttributeOption['labels']);

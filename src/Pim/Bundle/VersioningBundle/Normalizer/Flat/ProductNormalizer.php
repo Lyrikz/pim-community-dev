@@ -41,13 +41,13 @@ class ProductNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param ProductInterface $object
+     * @param ProductInterface $product
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($product, $format = null, array $context = [])
     {
-        $standardProduct = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardProduct = $this->standardNormalizer->normalize($product, 'standard', $context);
         $flatProduct = $standardProduct;
 
         unset($flatProduct['identifier']);

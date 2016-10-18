@@ -25,17 +25,17 @@ class MetricNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param array $object
+     * @param array $standardMetric
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($standardMetric, $format = null, array $context = [])
     {
         $context = $this->resolveContext($context);
 
         $flatMetric = [];
 
-        foreach ($object as $attribute => $productValues) {
+        foreach ($standardMetric as $attribute => $productValues) {
             foreach ($productValues as $metricValue) {
                 $locale = $metricValue['locale'];
                 $scope = $metricValue['scope'];

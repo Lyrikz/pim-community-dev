@@ -31,13 +31,13 @@ class LocaleNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param LocaleInterface $object
+     * @param LocaleInterface $locale
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($locale, $format = null, array $context = [])
     {
-        return $this->standardNormalizer->normalize($object, 'standard', $context);
+        return $this->standardNormalizer->normalize($locale, 'standard', $context);
     }
 
     /**

@@ -51,8 +51,6 @@ services:
             - '@pim_versioning.serializer.normalizer.flat.price'
             - '@pim_versioning.serializer.normalizer.flat.metric'
             - '@pim_versioning.serializer.normalizer.flat.collection'
-        tags:
-            - { name: pim_versioning.serializer.normalizer, priority: 90 }
 
     pim_versioning.serializer.normalizer.flat.category:
         class: '%pim_serializer.normalizer.flat.category.class%'

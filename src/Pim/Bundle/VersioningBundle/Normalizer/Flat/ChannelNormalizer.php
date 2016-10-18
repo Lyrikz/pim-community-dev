@@ -2,9 +2,7 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use Gedmo\Translatable\Document\Translation;
 use Pim\Component\Catalog\Model\ChannelInterface;
-use Pim\Component\Catalog\Normalizer\Standard\ChannelNormalizer as StandardNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -22,21 +20,19 @@ class ChannelNormalizer implements NormalizerInterface
     /** @var string[] */
     protected $supportedFormats = ['flat'];
 
-    /** @var StandardNormalizer */
+    /** @var NormalizerInterface */
     protected $standardNormalizer;
 
-    /** @var TranslationNormalizer */
+    /** @var NormalizerInterface */
     protected $translationNormalizer;
 
     /**
-     * ChannelNormalizer constructor.
-     *
-     * @param NormalizerInterface   $standardNormalizer
-     * @param TranslationNormalizer $translationNormalizer
+     * @param NormalizerInterface $standardNormalizer
+     * @param NormalizerInterface $translationNormalizer
      */
     public function __construct(
         NormalizerInterface $standardNormalizer,
-        TranslationNormalizer $translationNormalizer
+        NormalizerInterface $translationNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
         $this->translationNormalizer = $translationNormalizer;
@@ -86,7 +82,7 @@ class ChannelNormalizer implements NormalizerInterface
         $flatArray = [];
 
         foreach ($conversionUnits as $unitType => $unit) {
-            $flatArray[self::UNIT_LABEL_PREFIX.'-'.$unitType] = $unit;
+            $flatArray[self::UNIT_LABEL_PREFIX . '-' . $unitType] = $unit;
         }
 
         return $flatArray;

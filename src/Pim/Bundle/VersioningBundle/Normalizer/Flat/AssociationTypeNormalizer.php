@@ -3,7 +3,6 @@
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\AssociationTypeInterface;
-use Pim\Component\Catalog\Normalizer\Standard\AssociationTypeNormalizer as StandardNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -18,19 +17,19 @@ class AssociationTypeNormalizer implements NormalizerInterface
     /** @var string[] */
     protected $supportedFormats = ['flat'];
 
-    /** @var TranslationNormalizer */
-    protected $translationNormalizer;
-
     /** @var CategoryNormalizer */
     protected $standardNormalizer;
 
+    /** @var TranslationNormalizer */
+    protected $translationNormalizer;
+
     /**
-     * @param NormalizerInterface   $standardNormalizer
-     * @param TranslationNormalizer $translationNormalizer
+     * @param NormalizerInterface $standardNormalizer
+     * @param NormalizerInterface $translationNormalizer
      */
     public function __construct(
         NormalizerInterface $standardNormalizer,
-        TranslationNormalizer $translationNormalizer
+        NormalizerInterface $translationNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
         $this->translationNormalizer = $translationNormalizer;

@@ -3,7 +3,6 @@
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\AttributeOptionInterface;
-use Pim\Component\Catalog\Normalizer\Standard\AttributeOptionNormalizer as StandardNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -20,21 +19,19 @@ class AttributeOptionNormalizer implements NormalizerInterface
     /** @var string[] */
     protected $supportedFormats = ['flat'];
 
-    /** @var StandardNormalizer */
+    /** @var NormalizerInterface */
     protected $standardNormalizer;
 
-    /** @var TranslationNormalizer  */
+    /** @var NormalizerInterfacer */
     protected $translationNormalizer;
 
     /**
-     * AttributeNormalizer constructor.
-     *
-     * @param NormalizerInterface   $standardNormalizer
-     * @param TranslationNormalizer $translationNormalizer
+     * @param NormalizerInterface $standardNormalizer
+     * @param NormalizerInterface $translationNormalizer
      */
     public function __construct(
         NormalizerInterface $standardNormalizer,
-        TranslationNormalizer $translationNormalizer
+        NormalizerInterface $translationNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
         $this->translationNormalizer = $translationNormalizer;
@@ -61,7 +58,6 @@ class AttributeOptionNormalizer implements NormalizerInterface
 
         return $flatAttributeOption;
     }
-
 
     /**
      * {@inheritdoc}

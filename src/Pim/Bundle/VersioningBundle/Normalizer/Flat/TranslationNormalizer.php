@@ -28,7 +28,7 @@ class TranslationNormalizer implements NormalizerInterface
         $context = array_merge(
             [
                 'field_name' => 'label',
-                'locales'  => [],
+                'locales'    => [],
             ],
             $context
         );

@@ -25,7 +25,7 @@ class VariantGroupNormalizer implements NormalizerInterface
     /** @var NormalizerInterface */
     protected $standardNormalizer;
 
-    /** @var NormalizerInterface  */
+    /** @var NormalizerInterface */
     protected $productValueNormalizer;
 
     /**

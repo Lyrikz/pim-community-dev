@@ -4,7 +4,6 @@ namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\AttributeInterface;
 use Pim\Component\Catalog\Model\ProductValueInterface;
-use Pim\Component\Catalog\Normalizer\Standard\AttributeNormalizer as StandardNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -23,21 +22,21 @@ class AttributeNormalizer implements NormalizerInterface
     /** @var string[] */
     protected $supportedFormats = ['flat'];
 
-    /** @var StandardNormalizer */
+    /** @var NormalizerInterface */
     protected $standardNormalizer;
 
-    /** @var TranslationNormalizer  */
+    /** @var NormalizerInterface */
     protected $translationNormalizer;
 
     /**
      * AttributeNormalizer constructor.
      *
-     * @param NormalizerInterface   $standardNormalizer
-     * @param TranslationNormalizer $translationNormalizer
+     * @param NormalizerInterface $standardNormalizer
+     * @param NormalizerInterface $translationNormalizer
      */
     public function __construct(
         NormalizerInterface $standardNormalizer,
-        TranslationNormalizer $translationNormalizer
+        NormalizerInterface $translationNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
         $this->translationNormalizer = $translationNormalizer;
@@ -97,7 +96,7 @@ class AttributeNormalizer implements NormalizerInterface
                     $label = str_replace('{value}', $value->getValue(), $label);
                     $item[] = $label;
                 }
-                $data[] = 'Code:'.$option->getCode().self::ITEM_SEPARATOR.implode(self::ITEM_SEPARATOR, $item);
+                $data[] = 'Code:' . $option->getCode() . self::ITEM_SEPARATOR . implode(self::ITEM_SEPARATOR, $item);
             }
             $options = implode(self::GROUP_SEPARATOR, $data);
         }

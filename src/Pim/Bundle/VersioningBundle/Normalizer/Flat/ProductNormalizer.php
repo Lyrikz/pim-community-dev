@@ -4,8 +4,6 @@ namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\ProductInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\SerializerAwareNormalizer;
-use Pim\Component\Catalog\Normalizer\Standard\ProductNormalizer as StandardNormalizer;
 
 /**
  * A normalizer to transform a product entity into a flat array
@@ -22,19 +20,19 @@ class ProductNormalizer implements NormalizerInterface
     /** @var string[] */
     protected $supportedFormats = ['flat'];
 
-    /** @var StandardNormalizer */
+    /** @var NormalizerInterface */
     protected $standardNormalizer;
 
-    /** @var ProductValueNormalizer */
+    /** @var NormalizerInterface */
     protected $productValueNormalizer;
 
     /**
-     * @param NormalizerInterface       $standardNormalizer
-     * @param ProductValueNormalizer    $productValueNormalizer
+     * @param NormalizerInterface $standardNormalizer
+     * @param NormalizerInterface $productValueNormalizer
      */
     public function __construct(
         NormalizerInterface $standardNormalizer,
-        ProductValueNormalizer $productValueNormalizer
+        NormalizerInterface $productValueNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
         $this->productValueNormalizer = $productValueNormalizer;
@@ -89,8 +87,8 @@ class ProductNormalizer implements NormalizerInterface
         $flatAssociations = [];
 
         foreach ($associations as $associationType => $association) {
-            $flatAssociations[$associationType.'-groups'] = implode(',', $association['groups']);
-            $flatAssociations[$associationType.'-products'] = implode(',', $association['products']);
+            $flatAssociations[$associationType . '-groups'] = implode(',', $association['groups']);
+            $flatAssociations[$associationType . '-products'] = implode(',', $association['products']);
         }
 
         return $flatAssociations;

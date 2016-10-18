@@ -101,7 +101,7 @@ class MetricNormalizer implements NormalizerInterface
         if (!in_array($context['metric_format'], [self::MULTIPLE_FIELDS_FORMAT, self::SINGLE_FIELD_FORMAT])) {
             throw new \InvalidArgumentException(
                 sprintf(
-                    'Value "%s" of "metric_format" context value is not allowed '.
+                    'Value "%s" of "metric_format" context value is not allowed ' .
                     '(allowed values: "single_field, multiple_fields"',
                     $context['metric_format']
                 )

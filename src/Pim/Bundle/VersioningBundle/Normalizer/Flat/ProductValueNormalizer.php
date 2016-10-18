@@ -2,15 +2,7 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Pim\Component\Catalog\AttributeTypes;
-use Pim\Component\Catalog\Localization\Localizer\LocalizerRegistryInterface;
-use Pim\Component\Catalog\Model\AttributeInterface;
-use Pim\Component\Catalog\Model\ProductValueInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\SerializerAwareInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Normalize a product value into an array

@@ -3,7 +3,6 @@
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
 use Pim\Component\Catalog\Model\FamilyInterface;
-use Pim\Component\Catalog\Normalizer\Standard\FamilyNormalizer as StandardNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -20,19 +19,19 @@ class FamilyNormalizer implements NormalizerInterface
     /** @var string[] */
     protected $supportedFormats = ['flat'];
 
-    /** @var TranslationNormalizer */
+    /** @var NormalizerInterface */
     protected $translationNormalizer;
 
-    /** @var StandardNormalizer */
+    /** @var NormalizerInterface */
     protected $standardNormalizer;
 
     /**
-     * @param NormalizerInterface   $standardNormalizer
-     * @param TranslationNormalizer $translationNormalizer
+     * @param NormalizerInterface $standardNormalizer
+     * @param NormalizerInterface $translationNormalizer
      */
     public function __construct(
         NormalizerInterface $standardNormalizer,
-        TranslationNormalizer $translationNormalizer
+        NormalizerInterface $translationNormalizer
     ) {
         $this->standardNormalizer = $standardNormalizer;
         $this->translationNormalizer = $translationNormalizer;
@@ -86,7 +85,7 @@ class FamilyNormalizer implements NormalizerInterface
     {
         $flat = [];
         foreach ($requirements as $channel => $attributes) {
-            $flat['requirements-'.$channel] = implode(self::ITEM_SEPARATOR, $attributes);
+            $flat['requirements-' . $channel] = implode(self::ITEM_SEPARATOR, $attributes);
         }
 
         return $flat;

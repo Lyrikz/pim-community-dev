@@ -2,11 +2,8 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use Doctrine\Common\Collections\Collection;
 use PhpCollection\CollectionInterface;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\SerializerAwareNormalizer;
 
 /**
  * Normalize a product value collection
@@ -17,7 +14,7 @@ use Symfony\Component\Serializer\Normalizer\SerializerAwareNormalizer;
  *
  * @see       Pim\Bundle\TransformBundle\Normalizer\Flat\ProductNormalizer
  */
-class CollectionNormalizer extends SerializerAwareNormalizer implements NormalizerInterface
+class CollectionNormalizer implements NormalizerInterface
 {
     const LABEL_SEPARATOR = '-';
     const ITEM_SEPARATOR = ',';

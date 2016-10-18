@@ -2,7 +2,6 @@
 
 namespace Pim\Bundle\VersioningBundle\Normalizer\Flat;
 
-use Pim\Component\Catalog\Model\ProductPriceInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -50,6 +49,14 @@ class PriceNormalizer implements NormalizerInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function supportsNormalization($data, $format = null)
+    {
+        return in_array($format, $this->supportedFormats);
+    }
+
+    /**
      * Generates the flat label for the collection product value
      *
      * @param string $attribute
@@ -65,13 +72,5 @@ class PriceNormalizer implements NormalizerInterface
         $localeLabel = null !== $locale ? self::LABEL_SEPARATOR . $locale : '';
 
         return $attribute . self::LABEL_SEPARATOR . $currency . $scopeLabel . $localeLabel;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsNormalization($data, $format = null)
-    {
-        return  in_array($format, $this->supportedFormats);
     }
 }

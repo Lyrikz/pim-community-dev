@@ -39,13 +39,13 @@ class GroupNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @param GroupInterface $object
+     * @param GroupInterface $group
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($group, $format = null, array $context = [])
     {
-        $standardGroup = $this->standardNormalizer->normalize($object, 'standard', $context);
+        $standardGroup = $this->standardNormalizer->normalize($group, 'standard', $context);
         $flatGroup = $standardGroup;
 
         unset($flatGroup['labels']);

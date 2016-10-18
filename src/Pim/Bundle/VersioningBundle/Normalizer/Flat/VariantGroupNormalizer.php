@@ -50,17 +50,18 @@ class VariantGroupNormalizer implements NormalizerInterface
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($variantGroup, $format = null, array $context = [])
     {
-        $standardGroup = $this->standardNormalizer->normalize($object, 'standard', $context);
-        $flatGroup = $standardGroup;
-        $flatGroup['axes'] = implode(self::ITEM_SEPARATOR, $standardGroup['axes']);
+        $standardVariantGroup = $this->standardNormalizer->normalize($variantGroup, 'standard', $context);
+        $flatGroup = $standardVariantGroup;
+
+        $flatGroup['axes'] = implode(self::ITEM_SEPARATOR, $standardVariantGroup['axes']);
 
         unset($flatGroup['values']);
-        $flatGroup += $this->normalizeValues($standardGroup['values'], $context);
+        $flatGroup += $this->normalizeValues($standardVariantGroup['values'], $context);
 
         unset($flatGroup['labels']);
-        $flatGroup += $this->translationNormalizer->normalize($standardGroup['labels'], 'flat', $context);
+        $flatGroup += $this->translationNormalizer->normalize($standardVariantGroup['labels'], 'flat', $context);
 
         return $flatGroup;
     }
@@ -81,12 +82,16 @@ class VariantGroupNormalizer implements NormalizerInterface
      *
      * @return array
      */
-    protected function normalizeValues($variantGroupValues, $context)
+    protected function normalizeValues(array $variantGroupValues, array $context = [])
     {
         $flatValues = [];
 
-        foreach ($variantGroupValues as $variantGroupValue) {
-            $flatValues += $this->productValueNormalizer->normalize($variantGroupValue, 'flat', $context);
+        foreach ($variantGroupValues as $attributeName => $variantGroupValue) {
+            $flatValues += $this->productValueNormalizer->normalize(
+                [$attributeName => $variantGroupValue],
+                'flat',
+                $context
+            );
         }
 
         return $flatValues;

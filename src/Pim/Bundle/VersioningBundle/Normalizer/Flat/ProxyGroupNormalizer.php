@@ -49,13 +49,13 @@ class ProxyGroupNormalizer implements NormalizerInterface
      *
      * @return array
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($group, $format = null, array $context = [])
     {
-        if ($object->getType()->isVariant()) {
-            return $this->variantGroupNormalizer->normalize($object, $format, $context);
+        if ($group->getType()->isVariant()) {
+            return $this->variantGroupNormalizer->normalize($group, $format, $context);
         }
 
-        return $this->groupNormalizer->normalize($object, $format, $context);
+        return $this->groupNormalizer->normalize($group, $format, $context);
     }
 
     /**

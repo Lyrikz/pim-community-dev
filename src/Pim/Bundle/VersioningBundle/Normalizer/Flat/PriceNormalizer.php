@@ -75,6 +75,6 @@ class PriceNormalizer implements NormalizerInterface
         $channelLabel = null !== $channelCode ? self::LABEL_SEPARATOR . $channelCode : '';
         $localeLabel = null !== $localeCode ? self::LABEL_SEPARATOR . $localeCode : '';
 
-        return $attributeCode . self::LABEL_SEPARATOR . $currency . $channelLabel . $localeLabel;
+        return $attributeCode . self::LABEL_SEPARATOR . $currency . $localeLabel . $channelLabel;
     }
 }

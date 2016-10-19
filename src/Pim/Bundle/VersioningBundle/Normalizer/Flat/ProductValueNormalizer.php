@@ -114,6 +114,6 @@ class ProductValueNormalizer implements NormalizerInterface
         $channelLabel = null !== $channelCode ? self::LABEL_SEPARATOR . $channelCode : '';
         $localeLabel = null !== $localeCode ? self::LABEL_SEPARATOR . $localeCode : '';
 
-        return $attribute . $channelLabel . $localeLabel;
+        return $attribute . $localeLabel . $channelLabel;
     }
 }

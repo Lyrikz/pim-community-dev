@@ -137,4 +137,47 @@ class ProductValueNormalizerSpec extends ObjectBehavior
         );
         $this->normalize($standardProductValue, 'flat', [])->shouldReturn(['collection' => 'red,blue']);
     }
+
+    function it_normalizes_a_scopable_product_value()
+    {
+        $standardProductValue = [
+            'simple_product_value' => [
+                [
+                    'locale' => null,
+                    'scope'  => 'mobile',
+                    'data'   => '12',
+                ],
+            ],
+        ];
+        $this->normalize($standardProductValue, 'flat', [])->shouldReturn(['simple_product_value-mobile' => '12']);
+    }
+
+    function it_normalizes_a_localizable_product_value()
+    {
+        $standardProductValue = [
+            'simple_product_value' => [
+                [
+                    'locale' => 'fr_FR',
+                    'scope'  => null,
+                    'data'   => '12',
+                ],
+            ],
+        ];
+        $this->normalize($standardProductValue, 'flat', [])->shouldReturn(['simple_product_value-fr_FR' => '12']);
+    }
+
+    function it_normalizes_a_scopable_and_localizable_product_value()
+    {
+        $standardProductValue = [
+            'simple_product_value' => [
+                [
+                    'locale' => 'fr_FR',
+                    'scope'  => 'mobile',
+                    'data'   => '12',
+                ],
+            ],
+        ];
+        $this->normalize($standardProductValue, 'flat', [])->shouldReturn(['simple_product_value-fr_FR-mobile' => '12']);
+    }
+
 }

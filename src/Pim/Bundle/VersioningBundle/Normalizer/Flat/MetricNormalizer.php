@@ -55,13 +55,13 @@ class MetricNormalizer implements NormalizerInterface
                         $isUnitLabel = true
                     );
 
-                    $flatMetric[$attributeLabel] = $metricValue['data']['amount'];
+                    $flatMetric[$attributeLabel] = $metricValue['data']['data'];
                     $flatMetric[$attributeUnitLabel] = $metricValue['data']['unit'];
                 } elseif (self::SINGLE_FIELD_FORMAT === $context['metric_format']) {
                     $flatMetric[$attributeLabel] = '';
 
-                    if ('' !== $metricValue['data']['amount'] && '' !== $metricValue['data']['unit']) {
-                        $flatMetric[$attributeLabel] = $metricValue['data']['amount'] .
+                    if ('' !== $metricValue['data']['data'] && '' !== $metricValue['data']['unit']) {
+                        $flatMetric[$attributeLabel] = $metricValue['data']['data'] .
                             self::VALUE_SEPARATOR .
                             $metricValue['data']['unit'];
                     }

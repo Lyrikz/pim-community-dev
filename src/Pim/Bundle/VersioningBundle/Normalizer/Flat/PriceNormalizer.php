@@ -40,7 +40,7 @@ class PriceNormalizer implements NormalizerInterface
                         $localeCode,
                         $price['currency']
                     );
-                    $flatPrice[$attributeLabel] = $price['amount'];
+                    $flatPrice[$attributeLabel] = $price['data'];
                 }
             }
         }

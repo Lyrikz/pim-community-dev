@@ -92,6 +92,10 @@ class ProductValueNormalizer implements NormalizerInterface, SerializerAwareInte
      */
     protected function getSimpleValue(ProductValueInterface $productValue, $format = null, array $context = [])
     {
+        if (null === $productValue->getData()) {
+            return null;
+        }
+
         $attributeType = $productValue->getAttribute()->getAttributeType();
         $context['is_decimals_allowed'] = $productValue->getAttribute()->isDecimalsAllowed();
 
